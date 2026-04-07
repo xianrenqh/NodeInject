@@ -2,6 +2,8 @@
 
 适用于 Typora v1.9.5 及以前版本
 
+> 仅用于学习目的
+
 ## 构建
 
 需要 Rust 开发环境，在根目录和 license-gen 目录下分别执行构建命令得到 node_inject.exe 和 license-gen.exe 程序。
@@ -25,4 +27,4 @@ cargo build
 
 
 ### Thank
-https://github.com/DiamondHunters/NodeInject 
+https://github.com/DiamondHunters/NodeInject

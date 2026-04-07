@@ -1,5 +1,7 @@
 # Python 版本使用说明
 
+> 仅用于学习目的
+
 ## 环境要求
 
 - Python 3.7+
@@ -13,7 +15,16 @@ pip install -r requirements.txt
 
 ## 使用方法
 
+### 准备工作
+
+需要将以下 3 个文件一起复制到 **Typora 安装目录**：
+- `node_inject.py`
+- `license_gen.py`
+- `hooklog.js`
+
 ### 1. 注入 Hook
+
+在 **Typora 安装目录**下运行：
 
 ```bash
 python node_inject.py
@@ -24,6 +35,10 @@ python node_inject.py
 ```bash
 python license_gen.py
 ```
+
+### 3. 激活 Typora
+
+启动 Typora，在激活窗口中输入生成的许可证。
 
 ## 与原 Rust 版本的功能对比
 
@@ -67,6 +82,9 @@ pyinstaller --onefile license_gen.py
 
 ## 注意事项
 
-1. 运行 `node_inject.py` 前，请确保在 Typora 安装目录下
-2. 需要备份原始的 `node_modules.asar` 文件
-3. hook.js 文件需要与脚本在同一目录或子目录
+1. ⚠️ **必须**将 `node_inject.py`、`license_gen.py` 和 `hooklog.js` 三个文件一起复制到 Typora 安装目录
+2. ⚠️ **必须**在 Typora 安装目录下运行脚本（与 `Typora.exe` 同一目录）
+3. ⚠️ 运行前请备份原始的 `resources/node_modules.asar` 文件
+4. ⚠️ 适用于 Typora v1.9.5 及以前版本
+5. ⚠️ 可能需要管理员权限（如果 Typora 安装在 Program Files）
+6. 仅用于学习目的
