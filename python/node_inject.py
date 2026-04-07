@@ -7,6 +7,7 @@ NodeInject Python 版本
 
 import os
 import sys
+import shutil
 from pathlib import Path
 
 try:
@@ -73,14 +74,56 @@ def append_require_to_file():
 
 def main():
     """主函数"""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description='NodeInject - Typora Hook 注入工具')
+    parser.add_argument('--force', '-f', action='store_true',
+                        help='强制重新安装（删除已存在的 node 目录）')
+    parser.add_argument('--clean', '-c', action='store_true',
+                        help='清理注入（恢复备份并删除 node 目录）')
+    args = parser.parse_args()
+
     print("=" * 50)
     print("NodeInject - Typora Hook 注入工具")
     print("=" * 50)
 
+    # 清理模式
+    if args.clean:
+        print("\n🧹 清理模式：恢复原始文件...")
+        backup_path = "./resources/node_modules.asar.bak"
+        if file_exist(backup_path):
+            if file_exist("./resources/node_modules.asar"):
+                os.remove("./resources/node_modules.asar")
+            shutil.copy2(backup_path, "./resources/node_modules.asar")
+            print("✓ 已恢复原始 node_modules.asar")
+
+        if file_exist("./node"):
+            shutil.rmtree("./node")
+            print("✓ 已删除 node 目录")
+
+        print("\n✅ 清理完成！")
+        return
+
     # 检查是否已安装
     if file_exist("./node"):
-        print("⚠ 你可能已经安装过 hook，请手动检查。")
-        return
+        if args.force:
+            print("\n🔄 强制模式：删除已存在的 node 目录...")
+            shutil.rmtree("./node")
+            print("✓ 已删除")
+            # 恢复原始备份
+            backup_path = "./resources/node_modules.asar.bak"
+            if file_exist(backup_path) and file_exist("./resources/node_modules.asar"):
+                os.remove("./resources/node_modules.asar")
+                shutil.copy2(backup_path, "./resources/node_modules.asar")
+                print("✓ 已恢复原始备份")
+        else:
+            print("\n⚠ 检测到已安装的 hook")
+            print("选项：")
+            print("  1. 使用 --force 或 -f 参数强制重新安装")
+            print("  2. 使用 --clean 或 -c 参数清理注入")
+            print("  3. 手动删除 node 目录后重新运行")
+            return
 
     # 检查 ASAR 文件是否存在
     if not file_exist("./resources/node_modules.asar"):
@@ -90,21 +133,31 @@ def main():
         return
 
     try:
-        # 1. 解压 ASAR
-        print("\n📦 步骤 1/4: 解压 node_modules.asar...")
+        # 1. 备份原始 ASAR
+        print("\n📦 步骤 1/5: 备份 node_modules.asar...")
+        backup_path = "./resources/node_modules.asar.bak"
+        if not file_exist(backup_path):
+            shutil.copy2("./resources/node_modules.asar", backup_path)
+            print("✓ 备份完成")
+        else:
+            print("✓ 备份已存在，跳过")
+
+        # 2. 解压 ASAR
+        print("\n📦 步骤 2/5: 解压 node_modules.asar...")
         asar.extract_all("./resources/node_modules.asar", "./node")
         print("✓ 解压完成")
 
-        # 2. 写入 hook.js
-        print("\n📝 步骤 2/4: 添加 hook.js...")
+        # 3. 写入 hook.js
+        print("\n📝 步骤 3/5: 添加 hook.js...")
         write_js_to_file()
 
-        # 3. 注入 require 语句
-        print("\n🔧 步骤 3/4: 应用补丁...")
+        # 4. 注入 require 语句
+        print("\n🔧 步骤 4/5: 应用补丁...")
         append_require_to_file()
 
-        # 4. 重新打包 ASAR
-        print("\n📦 步骤 4/4: 重新打包 node_modules.asar...")
+        # 5. 删除原始 ASAR 并重新打包
+        print("\n📦 步骤 5/5: 重新打包 node_modules.asar...")
+        os.remove("./resources/node_modules.asar")
         asar.create_package("./node", "./resources/node_modules.asar")
         print("✓ 打包完成")
 
